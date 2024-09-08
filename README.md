@@ -96,7 +96,7 @@ No diretório raiz do projeto, crie o arquivo `wsgi.py`:
 sudo nano /var/www/<domínio>/<projeto>/wsgi.py
 ```
 
-1. Para um Projeto `Flask`:
+### 1. Para um Projeto `Flask`:
 
 Adicione o seguinte código:
 
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     application.run()
 ```
 
-2. Para um Projeto `Django`:
+### 2. Para um Projeto `Django`:
 
 Adicione o seguinte código:
 
@@ -193,7 +193,7 @@ sudo nano /etc/hosts
 
 1. Acesse o endereço configurado no navegador:
 
-```http
+```txt
 http://<domínio>
 ```
 
