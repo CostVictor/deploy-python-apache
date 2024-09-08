@@ -197,6 +197,6 @@ sudo nano /etc/hosts
 http://<domínio>
 ```
 
-Se a configuração estiver correta, você verá a mensagem de boas-vindas ou a página inicial do seu projeto.
+Se a configuração estiver correta, você verá a página inicial do seu projeto.
 
 <!-- - Caso deseje configurar seu projeto para que também acesse banco de dados, siga o passo a passo em: [Config Mysql e PHPAdmin]() -->
