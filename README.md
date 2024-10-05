@@ -169,7 +169,7 @@ sudo nano /etc/apache2/sites-available/<domínio>.conf
         Require all denied
     </Directory>
 
-    <FilesMatch "\requirements.txt">
+    <FilesMatch "/requirements.txt">
         Require all denied
     </FilesMatch>
 
@@ -179,7 +179,7 @@ sudo nano /etc/apache2/sites-available/<domínio>.conf
     # </Directory>
 
     # Se você possui mais algum arquivo especifico dentro do dominio que não deve ser acessível, adicione a seguinte configuração para cada um deles:
-    # <FilesMatch "\<nome do arquivo.extensão>">
+    # <FilesMatch "/<nome do arquivo.extensão>">
     #   Require all denied
     # </FilesMatch>
 
