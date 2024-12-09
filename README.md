@@ -146,7 +146,7 @@ sudo nano /etc/apache2/sites-available/<domínio>.conf
 ```txt
 <VirtualHost *:80>
     ServerAdmin webmaster@localhost
-    ServerName <domínio>
+    ServerName <ip>
     ServerAlias www.<domínio>
 
     # AVISO: Apague estas mensagens quando terminar a configuração.
