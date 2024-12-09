@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
 ### 2. Para um Projeto `Django`:
 
-Com o framework Django, o módulo WSGI é configurado por padrão no momento da criação do projeto. Essa configuração pode ser verificada no arquivo `wsgi.py`, localizado na pasta principal do projeto, onde estará algo semelhante a:
+Com o framework Django, o WSGI já é configurado automaticamente no momento da criação do projeto. Essa configuração pode ser encontrada no arquivo `wsgi.py`, localizado na pasta principal do projeto, contendo algo semelhante a:
 
 ```python
 import os
