@@ -146,7 +146,7 @@ sudo nano /etc/apache2/sites-available/<domínio>.conf
 ```txt
 <VirtualHost *:80>
     ServerAdmin webmaster@localhost
-    ServerName <ip>
+    ServerName <domínio>
     ServerAlias www.<domínio>
 
     # AVISO: Apague estas mensagens quando terminar a configuração.
@@ -222,7 +222,7 @@ sudo a2dissite 000-default.conf
 5. Reinicie o Apache para Aplicar as Novas Configurações:
 
 ```bash
-sudo systemctl reload apache2
+sudo systemctl restart apache2
 ```
 
 ## Passo 5 (Opcional): Configurar o Arquivo Hosts
