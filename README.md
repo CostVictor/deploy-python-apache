@@ -16,16 +16,19 @@ Neste guia, vamos configurar o servidor web Apache para servir uma aplicação P
 
 ## Passo 1: Instalação do Apache e do Python
 
-Primeiro, precisamos instalar o Apache e o módulo WSGI, que permite ao Apache executar aplicativos Python.
+Primeiro, é necessário instalar o Apache, o módulo WSGI e outras ferramentas essenciais para configurar o servidor e garantir o suporte adequado a aplicativos Python. O comando abaixo instala os pacotes necessários:
 
 ```bash
-sudo apt install apache2 libapache2-mod-wsgi-py3 python3 python3-venv
+sudo apt install apache2 libapache2-mod-wsgi-py3 python3 python3-dev python3-venv build-essential pkg-config
 ```
 
-- `apache2`: O servidor web Apache.
-- `libapache2-mod-wsgi-py3`: O módulo WSGI para Python 3, que permite ao Apache executar aplicativos Python.
-- `python3`: A versão do Python 3.
-- `python3-venv`: Ferramenta para criar ambientes virtuais Python, isolando dependências específicas do projeto.
+- `apache2`: Servidor web Apache.  
+- `libapache2-mod-wsgi-py3`: Módulo WSGI para Python 3, que permite ao Apache executar aplicativos Python.  
+- `python3`: Versão do Python 3.  
+- `python3-dev`: Fornece cabeçalhos e bibliotecas necessários para compilar extensões Python.  
+- `python3-venv`: Ferramenta para criar ambientes virtuais Python, isolando dependências específicas do projeto.  
+- `build-essential`: Ferramentas como `gcc`, `g++` e `make`, necessárias para compilar dependências Python com código nativo.  
+- `pkg-config`: Localiza bibliotecas instaladas no sistema, usadas por dependências Python que requerem bibliotecas externas.  
 
 ## Passo 2: Configuração do Apache
 
@@ -97,15 +100,15 @@ pip install setuptools
 
 Dependendo se você está usando `Flask` ou `Django`, o arquivo WSGI terá configurações diferentes.
 
+### 1. Para um Projeto `Flask`:
+
 No diretório raiz do projeto, crie o arquivo `wsgi.py`:
 
 ```bash
 sudo nano /var/www/<domínio>/<projeto>/wsgi.py
 ```
 
-### 1. Para um Projeto `Flask`:
-
-Adicione o seguinte código:
+Adicione o seguinte código no arquivo:
 
 ```python
 from app import app as application
@@ -129,19 +132,13 @@ application = get_wsgi_application()
 
 ## Passo 4: Configuração do Apache para o Domínio
 
-1. Copie o arquivo de configuração padrão do Apache para um novo arquivo de configuração para o seu domínio:
-
-```bash
-sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/<domínio>.conf
-```
-
-2. Abra o arquivo de configuração copiado para edição:
+1. Crie um arquivo de configuração Apache para o seu domínio:
 
 ```bash
 sudo nano /etc/apache2/sites-available/<domínio>.conf
 ```
 
-3. Atualize o arquivo com as seguintes configurações:
+2. Atualize o arquivo com as seguintes configurações:
 
 ```txt
 <VirtualHost *:80>
@@ -150,9 +147,16 @@ sudo nano /etc/apache2/sites-available/<domínio>.conf
     ServerAlias www.<domínio>
 
     # AVISO: Apague estas mensagens quando terminar a configuração.
-    # Em 'DocumentRoot' defina a pasta dos arquivos estáticos do seu projeto.
 
-    DocumentRoot /var/www/<domínio>/<projeto>/<pasta pública do seu projeto>/static
+    # Configure o proxy e o proxy reverso do seu projeto para proteger o IP do seu servidor:
+
+    ProxyPreserveHost On
+    ProxyPass / http://127.0.0.1:<porta>/
+    ProxyPassReverse / http://127.0.0.1:<porta>/
+
+    # Em 'DocumentRoot' defina a pasta raiz do seu projeto:
+
+    DocumentRoot /var/www/<domínio>/<projeto>
 
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
@@ -160,36 +164,27 @@ sudo nano /etc/apache2/sites-available/<domínio>.conf
     # Por questões de segurança, daremos acesso apenas a pasta pública de seu projeto. Está pasta será disponibilizada pela rede, garanta que não tenha nenhum arquivo sensível dentro dela.
 
     <Directory /var/www/<domínio>/<projeto>/<pasta pública do seu projeto>>
-        Options Indexes FollowSymLinks
-        AllowOverride None
         Require all granted
     </Directory>
 
-    <Directory /var/www/<domínio>/venv>
-        Require all denied
-    </Directory>
-
-    <FilesMatch "/requirements.txt">
-        Require all denied
-    </FilesMatch>
-
-    # Se você possui mais alguma pasta especifica dentro do dominio que não deve ser acessível, adicione a seguinte configuração para cada uma delas:
+    # Se você possui alguma pasta especifica dentro do dominio que não deve ser acessível, adicione a seguinte configuração para cada uma delas:
     # <Directory /var/www/<domínio>/<Nome da pasta>>
     #   Require all denied
     # </Directory>
 
-    # Se você possui mais algum arquivo especifico dentro do dominio que não deve ser acessível, adicione a seguinte configuração para cada um deles:
+    # Se você possui algum arquivo especifico dentro do dominio que não deve ser acessível, adicione a seguinte configuração para cada um deles:
     # <FilesMatch "/<nome do arquivo.extensão>">
     #   Require all denied
     # </FilesMatch>
 
-    WSGIDaemonProcess <domínio> python-path=/var/www/<domínio>/<projeto>/venv/lib/python3.8/site-packages
-    WSGIProcessGroup <domínio>
+    WSGIDaemonProcess <nome de variável para sua aplicação> python-path=/var/www/<domínio>/<projeto> python-home=/var/www/<domínio>/<projeto>/venv
+    WSGIProcessGroup <nome de variável para sua aplicação>
     WSGIScriptAlias / /var/www/<domínio>/<projeto>/wsgi.py
 </VirtualHost>
 ```
 
 - `Bloco <VirtualHost>`: Configura um host virtual para servir seu site na porta 80.
+- `Proxy e Proxy Reverse`: Redireciona todas as solicitações HTTP para o aplicativo rodando localmente, protegendo o IP do servidor e mantendo as sessões do usuário.
 - `DocumentRoot`: Define onde os arquivos estáticos são armazenados.
 - `Bloco <Directory>`: Configura permissões para o diretório do projeto.
 - `WSGIDaemonProcess e WSGIProcessGroup`: Configuram o ambiente WSGI para seu aplicativo Python.
@@ -211,6 +206,14 @@ chmod 700 /var/www/<domínio>/venv
 - 0 (---): Outros usuários (não pertencentes ao grupo e não sendo o proprietário) também não têm nenhuma permissão.
 
 ---
+
+3. Ative o Módulo Proxy e WSGI para Utilizar os Recursos:
+
+```bash
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod wsgi
+```
 
 4. Ative o Novo Arquivo de Configuração e Desative o Site Padrão:
 
