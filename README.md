@@ -19,7 +19,7 @@ Neste guia, vamos configurar o servidor web Apache para servir uma aplicação P
 Primeiro, é necessário instalar o Apache, o módulo WSGI e outras ferramentas essenciais para configurar o servidor e garantir o suporte adequado a aplicativos Python. O comando abaixo instala os pacotes necessários:
 
 ```bash
-sudo apt install apache2 libapache2-mod-wsgi-py3 python3 python3-dev python3-venv build-essential pkg-config
+sudo apt install apache2 libapache2-mod-wsgi-py3 python3 python3-dev python3-venv libmysqlclient-dev libmariadb-dev build-essential pkg-config
 ```
 
 - `apache2`: Servidor web Apache.  
